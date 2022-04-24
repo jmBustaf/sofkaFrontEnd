@@ -23,11 +23,11 @@ export const useStyles = makeStyles(() => ({
   },
   form: {
     width: '100%',
-    marginTop: theme.spacing(1),
+    marginTop: '3vh',
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: "3px, 0px, 2px, 3px",
     color: '#FFFFFF',
-    backgroundColor: theme.palette.secondary.dark,
+    backgroundColor: '#fefefe'
   },
 }))

@@ -1,15 +1,16 @@
 import React from "react"
-import AppBar from "./AppBar"
+import AppBar from "../components/AppBar"
 import { useState } from 'react'
-import { useHistory } from 'react-router'
+import { useNavigate } from "react-router-dom"
 import Button from '@material-ui/core/Button'
 import { Box, TextField } from '@material-ui/core'
-import Typography from "@material-ui/core/Typography";
-import { getGames } from "../services/game"
+import Typography from "@material-ui/core/Typography"
+import { saveGame } from '../services/game'
 
-const Register = () => {  
-  const history = useHistory()  
+const Register = (): JSX.Element => {
+  const history = useNavigate()  
   const [name, setName] = useState('')
+/*   const [data, setData] = useState() */
 
   const onChandlerText = (text) => {    
     setName(text)
@@ -18,14 +19,19 @@ const Register = () => {
   const goGame = async () => {
     try
     {
-      const { data, error } = await getGames()
-      if(data) console.log(data)
-      if(error) console.log(error)
-      history.push({pathname: '/game', state: name}) 
+      const { data, error } = await saveGame({
+        name_player: name,
+      })
+      if (data) {
+        history({pathname: '/game'/* , state:{ data } */}) 
+      }
+      if (error) {
+        return error
+      }
     }
     catch(error)
     {
-      console.log(error)
+      return error
     }
   }
 

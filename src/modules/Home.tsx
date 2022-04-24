@@ -1,21 +1,19 @@
 import React from "react"
-import AppBar from "./AppBar"
+import AppBar from "../components/AppBar"
 import { Box } from '@material-ui/core'
-import { useHistory } from 'react-router'
 import Button from '@material-ui/core/Button'
-/* import { useStyles } from '../styles/style-home' */
+import { useNavigate } from 'react-router-dom'
 import Typography from "@material-ui/core/Typography";
 
-const Home = () => {  
-  const history = useHistory()
-  /* const classes = useStyles() */
+const Home = (): JSX.Element => {
+  const history = useNavigate()
 
-  const goHistory = async () => {
-    history.push('/history') 
+  const goHistory = () => {
+    history('/history') 
   }
   
-  const goRegister = async () => {
-    history.push('/register') 
+  const goRegister = () => {
+    history('/register') 
   }
 
   return (

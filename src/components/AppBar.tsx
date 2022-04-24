@@ -11,7 +11,7 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const Navbar = () => {
+const Navbar = (): JSX.Element => {
   const classes = useStyle();
 
   return (
