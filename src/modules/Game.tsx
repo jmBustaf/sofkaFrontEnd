@@ -4,38 +4,38 @@ import ModalConfirm from "../components/ModalConfirm"
 import { Box } from '@material-ui/core'
 import ModalError from "../components/ModalError"
 import { useState, useEffect } from 'react'
-/* import { useLocation, } from 'react-router' */
+import { useLocation, } from 'react-router-dom'
 import { IQuestion } from "../models/question"
 import { getQuestionLevel, getQuestion } from '../services/question'
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 import Button from '@material-ui/core/Button';
 import { randomNum } from '../utils/functions'
+import ModalFinished from "../components/ModalFinished"
+import { getGame, updateGame } from "../services/game"
+import { IGame } from "../models/game" 
 
 const Game = (): JSX.Element => {
-
   const [questions, setQuestions] = useState<IQuestion[]>()
-  const [question, setQuestion] = useState<IQuestion>()
+  const [question, setQuestion] = useState<IQuestion>()  
+  const [game, setGame] = useState<IGame>()
   const [level, setLevel] = useState(1)
   const [arrayIds, setArrayIds] = useState<any[]>([])
-  const [statement, setStatement] = useState('')
   const [idQuestion, setIdQuestion] = useState<number>()
    const [value, setValue] = React.useState('');
   const [error, setError] = React.useState(false);
+  const [score, setScore] = useState(0)
   
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false)
-  const [openDialogError, setOpenDialogError] = useState(false)
-  
-/*   const location = useLocation()
- */
-/*   const playerName = location.state */
-/*   const [score, setScore] = useState() */
+  const [openDialogError, setOpenDialogError] = useState(false)  
+  const [openDialogFinished, setOpenDialogFinished] = useState(false)
+  const location: any = useLocation()
 
   useEffect(() => {
     getQuestions(level)
+    findGame()
   }, [])
 
   useEffect(() => {
@@ -50,9 +50,7 @@ const Game = (): JSX.Element => {
   }, [questions])
 
   useEffect(() => {
-    const min = arrayIds[0]
-    const max = arrayIds.pop();
-    const number = randomNum(min, max)
+    const number = randomNum(arrayIds)
     setIdQuestion(number) 
    }, [arrayIds])
 
@@ -64,19 +62,52 @@ const Game = (): JSX.Element => {
         setQuestion(currentQuestion.data)
       }
     }
-    if(!question) loadQuestion()
+    loadQuestion()
    }, [idQuestion])
-   
-   
-
+  
    const getQuestions = async (level) => {
     const { data, error } = await getQuestionLevel(level)
-    if (data) 
-    {
-      setQuestions(data)
-    }
+    setQuestions(data)    
     if (error) return error
    }
+
+  const findGame = async () => {
+    const { data, error } = await getGame(location.state.data.id)
+    setGame(data)    
+    if (error) return error
+  }
+
+  useEffect(() => {
+    getQuestions(level)
+  }, [level])
+
+  const openConfirmDialog = () => {
+    setOpenDialogConfirm(true)
+  }
+
+  const openErrorDialogError = () => {
+    setOpenDialogError(true)
+  }
+
+  const openFinishedDialog = () => {
+    setOpenDialogFinished(true)
+  }
+
+  const updateCurrentGame = async () => {
+    await updateGame({
+      ...game,
+      score: score + 100
+    })
+  }
+
+  const continueGame = async () => {
+    setLevel(level+1)
+    setScore(score + 100)
+  }
+
+  const finishGame = () => {
+    openFinishedDialog()
+  }
 
   const handleRadioChange = (event) => {
     setValue(event.target.value);
@@ -93,34 +124,35 @@ const Game = (): JSX.Element => {
     }
   };
 
-  const openConfirmDialog = () => {
-    setOpenDialogConfirm(true)
-  }
-
-  const openErrorDialogError = () => {
-    setOpenDialogError(true)
-  }
-
   return (
     <>
       <ModalConfirm
         open={openDialogConfirm}
         setOpen={setOpenDialogConfirm}
+        continueGame={continueGame}
+        level={level}
+        finishGame={finishGame}
+        updateCurrentGame={updateCurrentGame}
       />
       <ModalError
         open={openDialogError}
         setOpen={setOpenDialogError}
+        updateCurrentGame={updateCurrentGame}
+      />
+      <ModalFinished
+        open={openDialogFinished}
+        setOpen={setOpenDialogFinished}
       />
       <AppBar/>
       <div>
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: '4vh' }}>
-          <h2>Nombre participante:{/*  {{playerName}} */}</h2>
-          <h2>Puntaje acumulado: {0}</h2>
+          <h2>Nombre participante: { location.state.data.name_player}</h2>
+          <h2>Puntaje acumulado: {score}</h2>
         </div>
         <h3 style={{
           display: 'flex',
           justifyContent: 'center',
-          textAlign: 'center',}}>Pregunta: <br/> { question?.statement}</h3>
+          textAlign: 'center',}}>Pregunta nivel {level}: <br/> { question?.statement}</h3>
         <Box
           style={{
             display: 'flex',
@@ -130,7 +162,7 @@ const Game = (): JSX.Element => {
           }}
         >
           <form onSubmit={handleSubmit}>
-            <FormControl /* sx={{ m: 3 }} error={error} variant="standard" */>
+            <FormControl>
               <RadioGroup
                 aria-labelledby="demo-error-radios"
                 name="quiz"
@@ -142,7 +174,7 @@ const Game = (): JSX.Element => {
                 <FormControlLabel id={question?.id} value={question?.options[2]} control={<Radio />} label={question?.options[2]} />
                 <FormControlLabel id={question?.id} value={question?.options[3]} control={<Radio />} label={question?.options[3]} />
               </RadioGroup>
-              <Button variant="contained" size="large" type="submit" style={{marginTop: '5vh'}}> {/*  sx={{ mt: 1, mr: 1 }}  variant="outlined" */}
+              <Button variant="contained" size="large" type="submit" style={{marginTop: '5vh'}}>
                 Validar Respuesta
               </Button>
             </FormControl>

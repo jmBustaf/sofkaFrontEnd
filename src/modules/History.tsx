@@ -1,25 +1,28 @@
 import React from "react"
 import AppBar from "../components/AppBar"
-/* import { getGames } from '../services/game' */
+import { getGames } from '../services/game'
 import { Box } from '@material-ui/core'
 import { useEffect, useState } from 'react'
-/* import { useNavigate } from "react-router-dom" */
+import { useNavigate } from "react-router-dom"
 import { Grid, Typography } from '@material-ui/core'
 import HistoryItem from  '../components/HistoryItem'
+import { IGame } from "../models/game" 
 
 const History = (): JSX.Element => {
   const [games, setGames] = useState([])
 
   useEffect(() => {
-    const prueba  = ["asd", "dsa", "sda"]
-    /* const fetchData = async () => {
-      const data = await getGames()
-      if (data) setGames(data)
+    const fetchData = async () => {
+      const { data, error } = await getGames()
+      setGames(data)
+      if(error) return error
     }
-    if (!games) {
-      fetchData()
-    } */
+    fetchData()
   }, [])
+  
+  useEffect(() => {
+    console.log(games)
+  }, [games])
 
   return (
     <>
@@ -28,11 +31,11 @@ const History = (): JSX.Element => {
         <div style={{minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center'}}>
           <Typography variant="h3">Historial de partidas</Typography>
           <div style={{ justifyContent: 'center' }}>
-          <Grid /* container justifyContent="center" spacing={4} */>
+          <Grid>
             {games ? (
-              games.map((game, index) => (
-                <Grid item key={index} xs={12} sm={6} md={4}>
-                  <HistoryItem />{/* game={game} */}
+              games.map((game: IGame, index: number) => (
+                <Grid item key={index}  style={{marginTop: '3vh', marginBottom: '3vh', marginLeft: '3vh', marginRight: '3vh', borderRadius: 1}} >
+                  <HistoryItem game={game} /> 
                 </Grid>
               ))
             ) : (

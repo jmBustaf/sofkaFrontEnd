@@ -23,7 +23,7 @@ const Register = (): JSX.Element => {
         name_player: name,
       })
       if (data) {
-        history({pathname: '/game'/* , state:{ data } */}) 
+        history('/game', { state:{ data }})
       }
       if (error) {
         return error

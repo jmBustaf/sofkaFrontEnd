@@ -2,7 +2,7 @@ import { AxiosClient } from '../config/axios'
 
 /**
  * This method is used to connect with backend and get question
- * @return games
+ * @return question
 */
 export const getQuestion = async (id: any): Promise<any> => {
   try {
